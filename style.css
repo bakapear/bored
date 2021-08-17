@@ -22,7 +22,7 @@ body {
     margin: 25px auto;
 }
 
-.top {
+.header {
     display: flex;
     align-items: center;
     padding: 20px;
