@@ -1,3 +1,5 @@
+/* global fetch */
+
 window.onload = () => {
   handleButton('button', 'box')
 
@@ -5,6 +7,8 @@ window.onload = () => {
     { name: 'Reddit', img: 'icons/reddit.svg' },
     { name: 'iFunny', img: 'icons/ifunny.svg' }
   ])
+
+  addRandomItems('main')
 }
 
 function handleButton (button, box) {
@@ -25,4 +29,40 @@ function addApps (node, apps) {
     div.appendChild(img)
     node.appendChild(div)
   }
+}
+
+async function addRandomItems (main) {
+  main = document.getElementsByClassName(main)[0]
+
+  let pics = await fetch('https://www.reddit.com/r/pics/.json').then(j => j.json())
+  let items = []
+  for (let child of pics.data.children) {
+    items.push({
+      img: child.data.url
+    })
+  }
+  for (let item of items) {
+    let div = document.createElement('div')
+    div.classList.add('item')
+    let img = document.createElement('img')
+    img.src = item.img
+
+    img.onload = () => {
+      setTimeout(() => img.classList.add('done'), 100)
+      div.appendChild(img)
+      main.appendChild(div)
+      resizeMasonryItem(main, div)
+    }
+  }
+}
+
+function resizeMasonryItem (masonry, item) {
+  let rowGap = parseInt(window.getComputedStyle(masonry).getPropertyValue('grid-row-gap'))
+  let rowHeight = parseInt(window.getComputedStyle(masonry).getPropertyValue('grid-auto-rows'))
+
+  let content = item.children[0]
+
+  let rowSpan = Math.ceil((content.getBoundingClientRect().height + rowGap) / (rowHeight + rowGap))
+  item.style.gridRowEnd = 'span ' + rowSpan
+  content.style.height = rowSpan * rowGap + 'px'
 }
